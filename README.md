@@ -1,237 +1,365 @@
-# Shopify App Template - React Router
-
-This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using [React Router](https://reactrouter.com/). It was forked from the [Shopify Remix app template](https://github.com/Shopify/shopify-app-template-remix) and converted to React Router.
-
-Rather than cloning this repo, follow the [Quick Start steps](https://github.com/Shopify/shopify-app-template-react-router#quick-start).
-
-Visit the [`shopify.dev` documentation](https://shopify.dev/docs/api/shopify-app-react-router) for more details on the React Router app package.
-
-## Upgrading from Remix
-
-If you have an existing Remix app that you want to upgrade to React Router, please follow the [upgrade guide](https://github.com/Shopify/shopify-app-template-react-router/wiki/Upgrading-from-Remix). Otherwise, please follow the quick start guide below.
-
-## Quick start
-
-### Prerequisites
-
-Before you begin, you'll need to [download and install the Shopify CLI](https://shopify.dev/docs/apps/tools/cli/getting-started) if you haven't already.
-
-### Setup
-
-```shell
-shopify app init --template=https://github.com/Shopify/shopify-app-template-react-router
-```
-
-### Local Development
-
-```shell
-shopify app dev
-```
-
-Press P to open the URL to your app. Once you click install, you can start development.
-
-Local development is powered by [the Shopify CLI](https://shopify.dev/docs/apps/tools/cli). It logs into your account, connects to an app, provides environment variables, updates remote config, creates a tunnel and provides commands to generate extensions.
-
-### Authenticating and querying data
-
-To authenticate and query data you can use the `shopify` const that is exported from `/app/shopify.server.js`:
-
-```js
-export async function loader({ request }) {
-  const { admin } = await shopify.authenticate.admin(request);
-
-  const response = await admin.graphql(`
-    {
-      products(first: 25) {
-        nodes {
-          title
-          description
-        }
-      }
-    }`);
-
-  const {
-    data: {
-      products: { nodes },
-    },
-  } = await response.json();
-
-  return nodes;
-}
-```
-
-This template comes pre-configured with examples of:
-
-1. Setting up your Shopify app in [/app/shopify.server.ts](https://github.com/Shopify/shopify-app-template-react-router/blob/main/app/shopify.server.ts)
-2. Querying data using Graphql. Please see: [/app/routes/app.\_index.tsx](https://github.com/Shopify/shopify-app-template-react-router/blob/main/app/routes/app._index.tsx).
-3. Responding to webhooks. Please see [/app/routes/webhooks.tsx](https://github.com/Shopify/shopify-app-template-react-router/blob/main/app/routes/webhooks.app.uninstalled.tsx).
-4. Using metafields, metaobjects, and declarative custom data definitions. Please see [/app/routes/app.\_index.tsx](https://github.com/Shopify/shopify-app-template-react-router/blob/main/app/routes/app._index.tsx) and [shopify.app.toml](https://github.com/Shopify/shopify-app-template-react-router/blob/main/shopify.app.toml).
-
-Please read the [documentation for @shopify/shopify-app-react-router](https://shopify.dev/docs/api/shopify-app-react-router) to see what other API's are available.
-
-## Shopify Dev MCP
-
-This template is configured with the Shopify Dev MCP. This instructs [Cursor](https://cursor.com/), [GitHub Copilot](https://github.com/features/copilot) and [Claude Code](https://claude.com/product/claude-code) and [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) to use the Shopify Dev MCP.
-
-For more information on the Shopify Dev MCP please read [the documentation](https://shopify.dev/docs/apps/build/devmcp).
-
-## Deployment
-
-### Application Storage
-
-This template uses [Prisma](https://www.prisma.io/) to store session data, by default using an [SQLite](https://www.sqlite.org/index.html) database.
-The database is defined as a Prisma schema in `prisma/schema.prisma`.
-
-This use of SQLite works in production if your app runs as a single instance.
-The database that works best for you depends on the data your app needs and how it is queried.
-Here’s a short list of databases providers that provide a free tier to get started:
-
-| Database   | Type             | Hosters                                                                                                                                                                                                                                    |
-| ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| MySQL      | SQL              | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-mysql), [Planet Scale](https://planetscale.com/), [Amazon Aurora](https://aws.amazon.com/rds/aurora/), [Google Cloud SQL](https://cloud.google.com/sql/docs/mysql) |
-| PostgreSQL | SQL              | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-postgresql), [Amazon Aurora](https://aws.amazon.com/rds/aurora/), [Google Cloud SQL](https://cloud.google.com/sql/docs/postgres)                                   |
-| Redis      | Key-value        | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-redis), [Amazon MemoryDB](https://aws.amazon.com/memorydb/)                                                                                                        |
-| MongoDB    | NoSQL / Document | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-mongodb), [MongoDB Atlas](https://www.mongodb.com/atlas/database)                                                                                                  |
-
-To use one of these, you can use a different [datasource provider](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#datasource) in your `schema.prisma` file, or a different [SessionStorage adapter package](https://github.com/Shopify/shopify-api-js/blob/main/packages/shopify-api/docs/guides/session-storage.md).
-
-### Build
-
-Build the app by running the command below with the package manager of your choice:
-
-Using yarn:
-
-```shell
-yarn build
-```
-
-Using npm:
-
-```shell
-npm run build
-```
-
-Using pnpm:
-
-```shell
-pnpm run build
-```
-
-## Hosting
-
-When you're ready to set up your app in production, you can follow [our deployment documentation](https://shopify.dev/docs/apps/launch/deployment) to host it externally. From there, you have a few options:
-
-- [Google Cloud Run](https://shopify.dev/docs/apps/launch/deployment/deploy-to-google-cloud-run): This tutorial is written specifically for this example repo, and is compatible with the extended steps included in the subsequent [**Build your app**](tutorial) in the **Getting started** docs. It is the most detailed tutorial for taking a React Router-based Shopify app and deploying it to production. It includes configuring permissions and secrets, setting up a production database, and even hosting your apps behind a load balancer across multiple regions.
-- [Fly.io](https://fly.io/docs/js/shopify/): Leverages the Fly.io CLI to quickly launch Shopify apps to a single machine.
-- [Render](https://render.com/docs/deploy-shopify-app): This tutorial guides you through using Docker to deploy and install apps on a Dev store.
-- [Manual deployment guide](https://shopify.dev/docs/apps/launch/deployment/deploy-to-hosting-service): This resource provides general guidance on the requirements of deployment including environment variables, secrets, and persistent data.
-
-When you reach the step for [setting up environment variables](https://shopify.dev/docs/apps/deployment/web#set-env-vars), you also need to set the variable `NODE_ENV=production`.
-
-## Gotchas / Troubleshooting
-
-### Database tables don't exist
-
-If you get an error like:
-
-```
-The table `main.Session` does not exist in the current database.
-```
-
-Create the database for Prisma. Run the `setup` script in `package.json` using `npm`, `yarn` or `pnpm`.
-
-### Navigating/redirecting breaks an embedded app
-
-Embedded apps must maintain the user session, which can be tricky inside an iFrame. To avoid issues:
-
-1. Use `Link` from `react-router` or `@shopify/polaris`. Do not use `<a>`.
-2. Use `redirect` returned from `authenticate.admin`. Do not use `redirect` from `react-router`
-3. Use `useSubmit` from `react-router`.
-
-This only applies if your app is embedded, which it will be by default.
-
-### Webhooks: shop-specific webhook subscriptions aren't updated
-
-If you are registering webhooks in the `afterAuth` hook, using `shopify.registerWebhooks`, you may find that your subscriptions aren't being updated.
-
-Instead of using the `afterAuth` hook declare app-specific webhooks in the `shopify.app.toml` file. This approach is easier since Shopify will automatically sync changes every time you run `deploy` (e.g: `npm run deploy`). Please read these guides to understand more:
-
-1. [app-specific vs shop-specific webhooks](https://shopify.dev/docs/apps/build/webhooks/subscribe#app-specific-subscriptions)
-2. [Create a subscription tutorial](https://shopify.dev/docs/apps/build/webhooks/subscribe/get-started?deliveryMethod=https)
-
-If you do need shop-specific webhooks, keep in mind that the package calls `afterAuth` in 2 scenarios:
-
-- After installing the app
-- When an access token expires
-
-During normal development, the app won't need to re-authenticate most of the time, so shop-specific subscriptions aren't updated. To force your app to update the subscriptions, uninstall and reinstall the app. Revisiting the app will call the `afterAuth` hook.
-
-### Webhooks: Admin created webhook failing HMAC validation
-
-Webhooks subscriptions created in the [Shopify admin](https://help.shopify.com/en/manual/orders/notifications/webhooks) will fail HMAC validation. This is because the webhook payload is not signed with your app's secret key.
-
-The recommended solution is to use [app-specific webhooks](https://shopify.dev/docs/apps/build/webhooks/subscribe#app-specific-subscriptions) defined in your toml file instead. Test your webhooks by triggering events manually in the Shopify admin(e.g. Updating the product title to trigger a `PRODUCTS_UPDATE`).
-
-### Webhooks: Admin object undefined on webhook events triggered by the CLI
-
-When you trigger a webhook event using the Shopify CLI, the `admin` object will be `undefined`. This is because the CLI triggers an event with a valid, but non-existent, shop. The `admin` object is only available when the webhook is triggered by a shop that has installed the app. This is expected.
-
-Webhooks triggered by the CLI are intended for initial experimentation testing of your webhook configuration. For more information on how to test your webhooks, see the [Shopify CLI documentation](https://shopify.dev/docs/apps/tools/cli/commands#webhook-trigger).
-
-### Incorrect GraphQL Hints
-
-By default the [graphql.vscode-graphql](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql) extension for will assume that GraphQL queries or mutations are for the [Shopify Admin API](https://shopify.dev/docs/api/admin). This is a sensible default, but it may not be true if:
-
-1. You use another Shopify API such as the storefront API.
-2. You use a third party GraphQL API.
-
-If so, please update [.graphqlrc.ts](https://github.com/Shopify/shopify-app-template-react-router/blob/main/.graphqlrc.ts).
-
-### Using Defer & await for streaming responses
-
-By default the CLI uses a cloudflare tunnel. Unfortunately cloudflare tunnels wait for the Response stream to finish, then sends one chunk. This will not affect production.
-
-To test [streaming using await](https://reactrouter.com/api/components/Await#await) during local development we recommend [localhost based development](https://shopify.dev/docs/apps/build/cli-for-apps/networking-options#localhost-based-development).
-
-### "nbf" claim timestamp check failed
-
-This is because a JWT token is expired. If you are consistently getting this error, it could be that the clock on your machine is not in sync with the server. To fix this ensure you have enabled "Set time and date automatically" in the "Date and Time" settings on your computer.
-
-### Using MongoDB and Prisma
-
-If you choose to use MongoDB with Prisma, there are some gotchas in Prisma's MongoDB support to be aware of. Please see the [Prisma SessionStorage README](https://www.npmjs.com/package/@shopify/shopify-app-session-storage-prisma#mongodb).
-
-### Unable to require(`C:\...\query_engine-windows.dll.node`).
-
-Unable to require(`C:\...\query_engine-windows.dll.node`).
-The Prisma engines do not seem to be compatible with your system.
-
-query_engine-windows.dll.node is not a valid Win32 application.
-
-**Fix:** Set the environment variable:
-
-```shell
-PRISMA_CLIENT_ENGINE_TYPE=binary
-```
-
-This forces Prisma to use the binary engine mode, which runs the query engine as a separate process and can work via emulation on Windows ARM64.
-
-## Resources
-
-React Router:
-
-- [React Router docs](https://reactrouter.com/home)
-
-Shopify:
-
-- [Intro to Shopify apps](https://shopify.dev/docs/apps/getting-started)
-- [Shopify App React Router docs](https://shopify.dev/docs/api/shopify-app-react-router)
-- [Shopify CLI](https://shopify.dev/docs/apps/tools/cli)
-- [Shopify App Bridge](https://shopify.dev/docs/api/app-bridge-library).
-- [Polaris Web Components](https://shopify.dev/docs/api/app-home/polaris-web-components).
-- [App extensions](https://shopify.dev/docs/apps/app-extensions/list)
-- [Shopify Functions](https://shopify.dev/docs/api/functions)
-
-Internationalization:
-
-- [Internationalizing your app](https://shopify.dev/docs/apps/best-practices/internationalization/getting-started)
+Path to learn :
+
+*************************************Shopify *****************************************************
+
+                                                                                                                                   
+                                                                                           
+                                                                                                                                       
+  2. React fundamentals                       
+                                                                                                                                       
+  - JSX syntax (curly braces, attributes)
+  - Components and props                                                                                                               
+  - Conditional rendering: {x ? <A /> : <B />}
+  - List rendering: {arr.map(item => <X key={...} />)}                                                                                 
+  - Event handlers: onClick, onChange         
+  - useState (you know it)                
+  - useEffect (rarely needed in Remix, but know it)                                                                                    
+                                                                                                                                       
+                                                                                               
+                                              
+  4. Shopify CLI basics                                                                                                                
+                                                                                                                                       
+  - npm init @shopify/app@latest — scaffold                                                                                            
+  - npm run dev — start with tunnel                                                                                                    
+  - npm run deploy — push config to Partner Dashboard                                                                                  
+  - npm run shopify app info — see app status                                                                                          
+  - npm run shopify webhook trigger — test webhooks
+                                                                                                                                       
+  Phase 2: Remix core (Week 1–2)                                                                                                       
+                                                                                                                                       
+  Goal: Build pages confidently.                                                                                                       
+                                                                                                                                       
+  5. Remix file-based routing                                                                                                          
+                                                                                                                                       
+  - How filenames map to URLs (dots = slashes)
+  - $id for params, $ for catch-all                                                                                                    
+  - _index for default routes                 
+  - Layout files (e.g., app.jsx wraps app.*)                                                                                           
+  - Folder routes (route.jsx inside folders)  
+                                                                                                                                       
+  6. The Remix data flow                  
+                                                                                                                                       
+  - loader — runs on GET, fetches data                                                                                                 
+  - action — runs on POST/PUT/DELETE, saves data                                                                                       
+  - useLoaderData() — read loader's return value                                                                                       
+  - useActionData() — read action's return value (errors)                                                                              
+  - useNavigation() — submission state        
+  - <Form method="post"> — submits to action                                                                                           
+  - redirect() and json() helpers             
+  - Error boundaries: ErrorBoundary export                                                                                             
+                                          
+  7. Server vs client code split                                                                                                       
+                                                                                                                                       
+  - *.server.js files only run on server                                                                                               
+  - *.client.js files only run on browser                                                                                              
+  - Why secrets must stay in server code
+  - The useLoaderData bridge between them                                                                                              
+                                          
+  Phase 3: Shopify auth & API (Week 2)                                                                                                 
+                                                                                                                                       
+  Goal: Talk to Shopify safely.
+                                                                                                                                       
+  8. Shopify authentication                   
+                                                                                                                                       
+  - What an offline access token is
+  - What a session token (JWT) is                                                                                                      
+  - authenticate.admin(request) — what it actually does
+  - authenticate.public.appProxy(request) — for storefront calls                                                                       
+  - authenticate.webhook(request) — for webhooks
+                                          
+  9. GraphQL Admin API
+                                                                                                                                       
+  - query vs mutation                         
+  - Variables and $input: Type! syntax                                                                                                 
+  - The userErrors pattern                    
+  - Pagination with edges / node / cursor                                                                                              
+  - Where to find the schema (shopify.dev docs)
+  - Using GraphiQL (/graphiql URL) for exploration                                                                                     
+  - Common operations: customers, products, orders, metafields
+                                                                                                                                       
+  10. REST Admin API (briefly)                                                                                                         
+                                                                                                                                       
+  - When to use REST instead of GraphQL (rare)                                                                                         
+  - admin.rest.resources.X syntax                                                                                                      
+  - Why GraphQL is preferred
+                                                                                                                                       
+  Phase 4: UI with Polaris (Week 2)           
+                                                                                                                                       
+  Goal: Build Shopify-native UIs without writing CSS.                                                                                  
+                                                                                                                                       
+  11. Polaris core components                                                                                                          
+                                                                                                                                       
+  - Layout: Page, Card, BlockStack, InlineStack, Layout
+  - Typography: Text with variants                                                                                                     
+  - Forms: TextField, Select, Checkbox, RadioButton, FormLayout
+  - Buttons: Button, ButtonGroup                                                                                                       
+  - Data: IndexTable, DataTable, ResourceList
+  - Feedback: Banner, Toast, Modal, Spinner                                                                                            
+  - Navigation: Tabs, Pagination, Link                                                                                                 
+  - Display: Badge, Tag, Avatar, EmptyState                                                                                            
+                                                                                                                                       
+  12. Polaris patterns                                                                                                                 
+                                                                                                                                       
+  - Page header with primaryAction and backAction                                                                                      
+  - IndexTable rows + headings            
+  - Modal triggered from a button                                                                                                      
+  - Toast notifications                                                                                                                
+  - Loading skeletons                     
+  - Polaris icons (@shopify/polaris-icons)                                                                                             
+                                                                                                                                       
+  13. App Bridge basics                                                                                                                
+                                                                                                                                       
+  - What App Bridge is (communication with Shopify admin)
+  - useAppBridge() hook                                                                                                                
+  - Toast via App Bridge                      
+  - Resource pickers (ResourcePicker)                                                                                                  
+  - Title bar customization                   
+  - Navigation between embedded and admin                                                                                              
+                                              
+  Phase 5: Database with Prisma (Week 2–3)                                                                                             
+                  
+  Goal: Store your own app's data.                                                                                                     
+                                          
+  14. Prisma fundamentals                                                                                                              
+                                                                                                                                       
+  - schema.prisma — datasource, generator, models
+  - Field types: String, Int, BigInt, Boolean, DateTime, Json                                                                          
+  - Modifiers: @id, @default, @unique, @@index
+  - Relations: one-to-many, many-to-many                                                                                               
+  - Migrations: migrate dev, migrate deploy, migrate reset
+  - Seeding (prisma/seed.js)                                                                                                           
+                                          
+  15. Prisma Client API                                                                                                                
+                                                                                                                                       
+  - findMany, findUnique, create, update, delete, upsert                                                                               
+  - where, orderBy, take, skip, select, include                                                                                        
+  - Transactions: prisma.$transaction(...)    
+  - Connection pooling                                                                                                                 
+                                          
+  16. Switching DB providers                                                                                                           
+                                                                                                                                       
+  - SQLite for dev → PostgreSQL/MySQL for prod                                                                                         
+  - DATABASE_URL env var format                                                                                                        
+  - When to use a hosted DB (Neon, Supabase, PlanetScale)
+                                                                                                                                       
+  Phase 6: Webhooks (Week 3)              
+                                                                                                                                       
+  Goal: React to Shopify events.                                                                                                       
+                                                                                                                                       
+  17. Webhook basics                                                                                                                   
+                                          
+  - What a webhook is (push, not pull)
+  - Topics: orders/create, customers/update, app/uninstalled, etc.                                                                     
+  - HMAC signature verification (auto-handled by Remix)
+  - Declaring in shopify.app.toml                                                                                                      
+  - Handler files: app/routes/webhooks.*.jsx  
+                                                                                                                                       
+  18. Mandatory webhooks                                                                                                               
+                                                                                                                                       
+  - app/uninstalled — clean up data                                                                                                    
+  - app/scopes_update — sync scopes                                                                                                    
+  - customers/redact (GDPR)                   
+  - customers/data_request (GDPR)                                                                                                      
+  - shop/redact (GDPR)                    
+                                                                                                                                       
+  19. Webhook patterns                                                                                                                 
+                                                                                                                                       
+  - Idempotency (handle duplicates)                                                                                                    
+  - Returning 200 fast (no heavy work in handler)
+  - Background jobs for long tasks                                                                                                     
+  - Logging + retry handling                  
+                                          
+  Phase 7: Theme app extensions (Week 3–4)                                                                                             
+                                                                                                                                       
+  Goal: Add UI to the storefront.                                                                                                      
+                                                                                                                                       
+  20. Liquid basics
+                                                                                                                                       
+  - Output: {{ variable }}
+  - Tags: {% if %}, {% for %}, {% assign %}
+  - Filters: {{ x | upcase }}, {{ x | money }}
+  - Common objects: product, collection, customer, cart, shop
+                                              
+  21. Theme app extension structure           
+                                                                                                                                       
+  - extensions/<name>/blocks/*.liquid                                                                                                  
+  - extensions/<name>/snippets/*.liquid                                                                                                
+  - extensions/<name>/assets/* (CSS, JS)                                                                                               
+  - extensions/<name>/locales/*.json                                                                                                   
+  - shopify.extension.toml                    
+  - App blocks vs app embeds (target: section vs body)                                                                                 
+                                                                                                                                       
+  22. Storefront ↔ App communication                                                                                                   
+                                                                                                                                       
+  - App proxy (storefront calls your backend)                                                                                          
+  - Metafields (store data on products/customers/shop)                                                                                 
+  - Customer/product API (Storefront API)                                                                                              
+  - Cross-storefront integration patterns                                                                                              
+                                          
+  Phase 8: Production concerns (Week 4+)                                                                                               
+                                                                                                                                       
+  Goal: Ship apps that work for real merchants.                                                                                        
+                                                                                                                                       
+  23. Billing                                 
+                                                                                                                                       
+  - Shopify managed pricing
+  - app_subscriptions GraphQL                                                                                                          
+  - Free trials                               
+  - One-time vs recurring charges                                                                                                      
+  - Usage-based billing                       
+                                                                                                                                       
+  24. Deployment
+                                                                                                                                       
+  - Choosing a host (Fly.io, Railway, Vercel, Heroku)
+  - Dockerfile basics                                                                                                                  
+  - migrate deploy in CI/CD
+  - Environment variables in production                                                                                                
+  - Health checks                         
+  - Logs and monitoring (Sentry, Logtail)                                                                                              
+                                                                                                                                       
+  25. Performance                         
+                                                                                                                                       
+  - Caching loader responses                                                                                                           
+  - Reducing API calls (request batching)
+  - Pagination instead of fetching all                                                                                                 
+  - Background jobs for slow work (BullMQ, simple queues)
+  - Connection pooling                        
+                                                                                                                                       
+  26. Security                                
+                                                                                                                                       
+  - HMAC verification (already covered)
+  - Input validation (Zod, Yup)                                                                                                        
+  - Rate limiting your endpoints              
+  - SQL injection prevention (Prisma handles)                                                                                          
+  - Storing tokens securely                   
+  - Avoiding token leaks in logs                                                                                                       
+                                              
+  27. App Store submission                                                                                                             
+                  
+  - Required webhooks (GDPR)                                                                                                           
+  - Performance benchmarks
+  - Listing assets (screenshots, video)                                                                                                
+  - Pricing page                          
+  - Privacy policy + terms
+  - Built-for-Shopify standards                                                                                                        
+                                          
+  Phase 9: Advanced features (Month 2+)                                                                                                
+                                                                                                                                       
+  Goal: Build sophisticated apps.
+                                                                                                                                       
+  28. Admin extensions
+                                                                                                                                       
+  - Admin UI extensions (React inside Shopify admin)
+  - Block extensions on product/order pages
+  - POS UI extensions                         
+  - Customer account UI extensions                                                                                                     
+                                              
+  29. Checkout extensions                                                                                                              
+                  
+  - Checkout UI extensions (cart upsells, custom fields)                                                                               
+  - Pixel extensions (analytics)          
+  - Function-based discounts/payment customizations                                                                                    
+  - Shopify Functions (Rust/AssemblyScript)                                                                                            
+                                              
+  30. Storefront API                                                                                                                   
+                                                                                                                                       
+  - Headless commerce                                                                                                                  
+  - Hydrogen (Shopify's React storefront framework)                                                                                    
+  - Customer portal                                                                                                                    
+  - Cart API                                                                                                                           
+  
+  31. Shopify Flow integration                                                                                                         
+                  
+  - Custom triggers                                                                                                                    
+  - Custom actions                        
+  - App-as-an-automation-source
+                                                                                                                                       
+  32. App proxy patterns                  
+                                                                                                                                       
+  - Custom storefront pages served by your app                                                                                         
+  - AJAX endpoints for theme blocks       
+  - Signed requests (HMAC validation)                                                                                                  
+                                                                                                                                       
+  33. Multi-shop architecture             
+                                                                                                                                       
+  - Per-shop data isolation                                                                                                            
+  - Webhook ordering across shops         
+  - Background job per-shop                                                                                                            
+  - Migration strategy for app updates                                                                                                 
+                                              
+  Suggested learning order (week-by-week)                                                                                              
+                  
+  ┌──────┬────────────────────────────────────────────────┬────────────────────────────────────────────────┐                           
+  │ Week │                     Focus                      │                  Deliverable                   │
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤                           
+  │ 1    │ JS, React refresh, Remix routing, scaffold app │ App boots, can navigate pages                  │                           
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤
+  │ 2    │ Loader/action, GraphQL, Polaris basics         │ Build a CRUD page (customers list + add)       │                           
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤
+  │ 3    │ Prisma, your own data, simple webhooks         │ Sync Shopify customers to your DB via webhooks │
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤                           
+  │ 4    │ Theme extension, App Bridge, edit/delete flows │ A working app block on storefront + admin CRUD │                           
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤                           
+  │ 5    │ Billing, deployment, error handling            │ Deploy to staging, add billing                 │                           
+  ├──────┼────────────────────────────────────────────────┼────────────────────────────────────────────────┤
+  │ 6+   │ Polish, performance, App Store submission      │ Submit a real app                              │                           
+  └──────┴────────────────────────────────────────────────┴────────────────────────────────────────────────┘
+                                                                                                                                       
+  How to learn each topic
+                                                                                                                                       
+  For each topic on the list:                 
+                                                                                                                                       
+  1. Read the official doc (Shopify dev docs, Remix docs, Polaris docs, Prisma docs)
+  2. Build the smallest example — don't read passively                                                                                 
+  3. Make it work in your real app — apply immediately
+  4. Move to next topic — don't perfect, ship and iterate                                                                              
+                                              
+  Resources to bookmark                                                                                                                
+                                          
+  ┌────────────────────┬─────────────────────────────────────────┐                                                                     
+  │       Topic        │                  Link                   │                                                                     
+  ├────────────────────┼─────────────────────────────────────────┤                                                                     
+  │ Remix docs         │ remix.run/docs                           │                                                                    
+  ├────────────────────┼──────────────────────────────────────────┤
+  │ Shopify app dev    │ shopify.dev/docs/apps                          │
+  ├────────────────────┼────────────────────────────────────────────────┤
+  │ Admin GraphQL      │ shopify.dev/docs/api/admin-graphql             │
+  ├────────────────────┼────────────────────────────────────────────────┤                                                              
+  │ Polaris components │ polaris.shopify.com                            │                                                              
+  ├────────────────────┼────────────────────────────────────────────────┤                                                              
+  │ App Bridge         │ shopify.dev/docs/api/app-bridge-library        │                                                              
+  ├────────────────────┼────────────────────────────────────────────────┤
+  │ Prisma             │ prisma.io/docs                                 │                                                              
+  ├────────────────────┼────────────────────────────────────────────────┤
+  │ Liquid             │ shopify.dev/docs/api/liquid                    │                                                              
+  ├────────────────────┼────────────────────────────────────────────────┤
+  │ Webhooks           │ shopify.dev/docs/api/admin-rest/webhooks       │                                                              
+  ├────────────────────┼────────────────────────────────────────────────┤
+  │ Built-for-Shopify  │ shopify.dev/docs/apps/launch/built-for-shopify │                                                              
+  └────────────────────┴────────────────────────────────────────────────┘
+                                                                                                                                       
+  What you DON'T need (yet)                   
+                                                                                                                                       
+  Skip these unless you have a specific need:
+  - TypeScript (nice-to-have, not required)                                                                                            
+  - Hydrogen (only for headless storefronts)  
+  - Shopify Functions (only for advanced extensions)                                                                                   
+  - Custom themes / theme dev (separate skill)      
+  - Liquid mastery beyond basics (only if doing storefront work)                                                                       
+  - Custom POS UI (niche)                                       
+  - Blockchain / Tokengating extensions (niche)                                                                                        
+                                          
+  Mastery checkpoints                                                                                                                  
+                                                                                                                                       
+  You've mastered Shopify Remix when you can:                                                                                          
+                                                                                                                                       
+  1. ✅ Scaffold an app and explain every file
+  2. ✅ Build a CRUD feature without copy-pasting                                                                                      
+  3. ✅ Read the GraphQL schema and write queries on your own
+  4. ✅ Diagnose auth issues (token expired, scope missing, HMAC failed)                                                               
+  5. ✅ Add a webhook handler from scratch    
+  6. ✅ Build a theme app extension (block + embed)                                                                                    
+  7. ✅ Deploy to production with migrations                                                                                           
+  8. ✅ Implement billing                                                                                                              
+  9. ✅ Pass App Store submission review                                                                                               
+                                                                                                                                       
