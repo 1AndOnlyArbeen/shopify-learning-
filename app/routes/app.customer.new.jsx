@@ -77,8 +77,8 @@ export const action = asyncHandler(async ({ request }) => {
   if (result.errors) {
     return data({ error: result.errors.map((e) => e.message).join(", ") });
   }
-const userErrors = result?.data?.customerCreate?.userErrors ?? [];
-   if (userErrors.length > 0) {
+  const userErrors = result?.data?.customerCreate?.userErrors ?? [];
+  if (userErrors.length > 0) {
     return data({ error: userErrors.map((e) => e.message).join(", ") });
   }
 

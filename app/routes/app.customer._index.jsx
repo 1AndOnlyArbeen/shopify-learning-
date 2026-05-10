@@ -11,6 +11,7 @@ import {
     EmptyState,
 
 } from "@shopify/polaris"
+import { A } from "node_modules/react-router/dist/development/context-DGGUoDIu.mjs";
 
 
 // get the customer data from shopify
@@ -100,5 +101,7 @@ const CustomerList = ()=>{
   );
 
 }
+<a href=""></a>
 
 export default CustomerList;
+
