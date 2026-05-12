@@ -2,62 +2,23 @@ import { data } from "react-router";
 import { authenticate } from "../shopify.server";
 import { asyncHandler } from "../lib/asyncHandler";
 import { getProducts } from "../services/product.server";
-
-import { useLoaderData, useNavigate } from "react-router";
-import {
-  Page,
-  Card,
-  DataTable,
-  Thumbnail,
-  Badge,
-  Button,
-  Pagination,
-} from "@shopify/polaris";
+import { useLoaderData } from "react-router";
+import { Page } from "@shopify/polaris";
+import ProductTable from "../components/ProductTable";
 
 export const loader = asyncHandler(async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-  const { products, pageInfo } = await getProducts(admin);
+  const cursor = new URL(request.url).searchParams.get("cursor");
+  const { products, pageInfo } = await getProducts(admin, cursor);
   return data({ products, pageInfo });
 });
 
-// frontend
-
-// making ui
-
 export default function ProductListPage() {
-  const { products,pageInfo } = useLoaderData();
-  const navigate = useNavigate();
-
-  const list = products.map((p) => [
-    p.id,
-    p.title,
-    p.status,
-    p.image
-  ]);
+  const { products, pageInfo } = useLoaderData();
 
   return (
-  
-   <Page
-      title="Products"
-      primaryAction={{ content: "Edit", onAction: () => {} }}
-    >
-      <Card>
-        <DataTable
-          columnContentTypes={["text", "text", "text", "text"]}
-          headings={["Image", "Title", "Status", "Action"]}
-          rows={products.map((p) => [
-            <Thumbnail source={p.image} alt={p.title} size="small" />,
-            p.title,
-            <Badge>{p.status}</Badge>,
-           <Button variant="plain" onClick={() => navigate(`/app/product/${p.id.split("/").pop()}`)}>View</Button>,
-          ])}
-        />
-      </Card>
-      <Pagination
-        hasNext={pageInfo.hasNextPage}
-        onNext={() => navigate(`?cursor=${pageInfo.endCursor}`)}
-      />
+    <Page title="Products">
+      <ProductTable products={products} pageInfo={pageInfo} />
     </Page>
-  
-)
+  );
 }

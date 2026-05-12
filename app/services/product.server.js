@@ -1,9 +1,10 @@
 import { apiError } from "../lib/apiError";
 
-export async function getProducts(admin) {
-  const response = await admin.graphql(`
-    query GetProducts {
-      products(first: 10) {
+export async function getProducts(admin, cursor = null) {
+  const response = await admin.graphql(
+    `
+    query GetProducts($cursor: String) {
+      products(first: 10, after: $cursor) {
         edges {
           node {
             id
@@ -25,7 +26,9 @@ export async function getProducts(admin) {
         }
       }
     }
-  `);
+  `,
+    { variables: { cursor } },
+  );
 
   const result = await response.json();
 
