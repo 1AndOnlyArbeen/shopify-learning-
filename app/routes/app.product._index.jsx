@@ -8,8 +8,8 @@ import ProductTable from "../components/ProductTable";
 
 export const loader = asyncHandler(async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-  const cursor = new URL(request.url).searchParams.get("cursor");
-  const { products, pageInfo } = await getProducts(admin, cursor);
+  
+  const { products,pageInfo } = await getProducts(admin,request);
   return data({ products, pageInfo });
 });
 

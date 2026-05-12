@@ -1,10 +1,14 @@
 import { apiError } from "../lib/apiError";
 
-export async function getProducts(admin, cursor = null) {
-  const response = await admin.graphql(
-    `
-    query GetProducts($cursor: String) {
-      products(first: 10, after: $cursor) {
+export async function getProducts(admin,request) {
+
+  const url = new URL(request.url)
+const cursor = url.searchParams.get("cursor") || null
+
+
+  const response = await admin.graphql(`
+    query GetProducts ($cursor: String ) {
+      products(first: 10, after: $cursor ) {
         edges {
           node {
             id
@@ -23,6 +27,7 @@ export async function getProducts(admin, cursor = null) {
         pageInfo {
           hasNextPage
           endCursor
+          startCursor
         }
       }
     }
