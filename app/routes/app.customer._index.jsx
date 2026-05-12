@@ -1,60 +1,26 @@
 import { data } from "react-router";
 import { authenticate } from "../shopify.server";
 import { useLoaderData, useNavigate } from "react-router";
-import {apiError} from "../lib/apiError"
 import { asyncHandler } from "../lib/asyncHandler";
+import { getCustomers } from "../services/customer.server";
 import {
     Page,
     Card,
     Button,
     DataTable,
     EmptyState,
-
 } from "@shopify/polaris"
 
-
-// get the customer data from shopify
-
-export const loader = asyncHandler(async({request})=>{
-    const {admin} = await authenticate.admin(request);
-
-    // graph 
-
-      const response = await admin.graphql(`
-    query getCustomers {
-      customers(first: 50) {
-        edges {
-          node {
-            id
-            firstName
-            lastName
-            email
-            phone
-          }
-        }
-      }
-    }
-  `);
-
-  // return json 
-  const result = await response.json()
-  if (!result) {
-    throw new apiError(404, " customer data not found !")
-    
-  }
-
-// making it into format 
-  const customers = result.data.customers.edges.map((e)=>e.node)
-  return data({customers})
-
-})
+export const loader = asyncHandler(async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+  const { customers } = await getCustomers(admin);
+  return data({ customers });
+});
 
 //ui making 
 
 const CustomerList = ()=>{
-    // put the customer data into useActionData
     const {customers} = useLoaderData();
-    console.log(customers)
     const navigate = useNavigate()
     // making it into array 
     const rows =customers.map((c)=>[

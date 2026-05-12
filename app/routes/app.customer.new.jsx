@@ -1,8 +1,8 @@
 import { authenticate } from "../shopify.server";
 import { redirect, Form, useActionData, useNavigate } from "react-router";
 import { data } from "react-router";
-import { apiError } from "../lib/apiError";
 import { asyncHandler } from "../lib/asyncHandler";
+import { createCustomer } from "../services/customer.server";
 
 // from polaris
 import {
@@ -17,10 +17,7 @@ import {
 import { useState } from "react";
 
 export const action = asyncHandler(async ({ request }) => {
-  // authenticate if he is the amdin or not
   const { admin } = await authenticate.admin(request);
-
-  //get datafrom the form
 
   const formData = await request.formData();
   const firstName = formData.get("firstName");
@@ -28,58 +25,14 @@ export const action = asyncHandler(async ({ request }) => {
   const email = formData.get("email");
   const phoneNumber = formData.get("phoneNumber");
 
-  console.log(firstName, lastName, email, phoneNumber);
-
   if (!firstName || !lastName || !email || !phoneNumber) {
-    throw new apiError(400, " all field are required !");
+    return data({ error: "All fields are required" }, { status: 400 });
   }
 
-  // graph to mutate the data
-
-  const response = await admin.graphql(
-    `
-        mutation customerCreate($input:CustomerInput!){
-        customerCreate(input:$input){
-        customer {
-        id
-        firstName
-        lastName
-        email
-        phone
-        }
-        userErrors{
-        field
-        message
-        
-        }
-        
-        
-        }
-
-        }
-        
-        
-        
-        `,
-    {
-      variables: {
-        input: { firstName, lastName, email, phone: phoneNumber },
-      },
-    },
-  );
-
-  const result = await response.json();
-  //   if (!result) {
-  //     throw new apiError(500, " failed to create custiomer details ");
-  //   }
-
-  console.log("Shopify result:", JSON.stringify(result, null, 2));
-  if (result.errors) {
-    return data({ error: result.errors.map((e) => e.message).join(", ") });
-  }
-  const userErrors = result?.data?.customerCreate?.userErrors ?? [];
-  if (userErrors.length > 0) {
-    return data({ error: userErrors.map((e) => e.message).join(", ") });
+  try {
+    await createCustomer(admin, { firstName, lastName, email, phone: phoneNumber });
+  } catch (err) {
+    return data({ error: err.message }, { status: err.statusCode || 500 });
   }
 
   return redirect("/app/customer");

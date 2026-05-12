@@ -1,7 +1,7 @@
 import { data } from "react-router";
 import { authenticate } from "../shopify.server";
-import { apiError } from "../lib/apiError";
 import { asyncHandler } from "../lib/asyncHandler";
+import { getProducts } from "../services/product.server";
 
 import { useLoaderData, useNavigate } from "react-router";
 import {
@@ -12,55 +12,11 @@ import {
   Badge,
   Button,
   Pagination,
-  BlockStack,
-  Text,
 } from "@shopify/polaris";
-
-// get the product data form the shopify
 
 export const loader = asyncHandler(async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
-  //graph
-
-  const response = await admin.graphql(
-    `
-    query GetProduct {
-    products(first: 10){
-    edges {
-    node{
-    id 
-    title
-    status
-    images(first:1){
-    edges{
-    node{
-    url
-    altText}}
-    }
-}} pageInfo{
- hasNextPage
- endCursor }
-    }
-    }
-    `,
-  );
-
-  // give the json
-
-  const result = await response.json();
-
-  if (!result) {
-    throw new apiError(404, " Product data not found ");
-  }
-  //  making it into format
-  const products = result.data.products.edges.map((e) => ({
-    ...e.node,
-       image: e.node.images.edges[0]?.node?.url || "" }));
-
-  const pageInfo = result.data.products.pageInfo;
-  console.log(products);
-
+  const { products, pageInfo } = await getProducts(admin);
   return data({ products, pageInfo });
 });
 
@@ -68,10 +24,8 @@ export const loader = asyncHandler(async ({ request }) => {
 
 // making ui
 
-export default function () {
+export default function ProductListPage() {
   const { products,pageInfo } = useLoaderData();
-  console.log(products);
-
   const navigate = useNavigate();
 
   const list = products.map((p) => [
@@ -95,7 +49,7 @@ export default function () {
             <Thumbnail source={p.image} alt={p.title} size="small" />,
             p.title,
             <Badge>{p.status}</Badge>,
-            <Button onClick={()=>navigate('/app/product/hj')} variant="plain">View</Button>,
+           <Button variant="plain" onClick={() => navigate(`/app/product/${p.id.split("/").pop()}`)}>View</Button>,
           ])}
         />
       </Card>

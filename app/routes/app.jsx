@@ -6,6 +6,7 @@ import { AppProvider } from "@shopify/shopify-app-react-router/react";
   import enTranslations from "@shopify/polaris/locales/en.json"; 
 import { authenticate } from "../shopify.server";
 
+
 // "links" is a React Router export that injects <link> tags into <head>.
 // We use it to load Polaris's stylesheet once for the whole /app/* tree.
 // Without this, Polaris components render unstyled.
