@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router";
-import { Card, DataTable, Thumbnail, Badge, Button, Pagination } from "@shopify/polaris";
+import {
+  Card,
+  DataTable,
+  Thumbnail,
+  Badge,
+  Button,
+  Pagination,
+} from "@shopify/polaris";
 
-export default function ProductTable({ products , pageInfo }) {
+export default function ProductTable({ products, pageInfo }) {
   const navigate = useNavigate();
 
   return (
@@ -13,16 +20,24 @@ export default function ProductTable({ products , pageInfo }) {
           <Thumbnail source={p.image} alt={p.title} size="small" />,
           p.title,
           <Badge>{p.status}</Badge>,
-          <Button variant="plain" onClick={() => navigate(`/app/product/${p.id.split("/").pop()}`)}>
+          <Button
+            variant="plain"
+            onClick={() => navigate(`/app/product/${p.id.split("/").pop()}`)}
+          >
             View
           </Button>,
-          <Pagination 
-          hasNext={pageInfo.hasNextPage}
-          onNext = {()=>navigate('?curosr=${pageInfo.endCursor}')}
-          >
-          </Pagination>
         ])}
       />
+      <div className="flex  justify-center mt-4 ">
+        <Pagination
+        hasPrevious={pageInfo.hasPreviousPage}
+        hasNext={pageInfo.hasNextPage}
+        onPrevious={() =>
+          navigate(`?cursor=${pageInfo.startCursor}&direction=prev`)
+        }
+        onNext={() => navigate(`?cursor=${pageInfo.endCursor}&direction=next`)}
+      />
+      </div>
     </Card>
   );
 }

@@ -2,13 +2,17 @@ import { apiError } from "../lib/apiError";
 
 export async function getProducts(admin,request) {
 
-  const url = new URL(request.url)
+const url = new URL(request.url)
 const cursor = url.searchParams.get("cursor") || null
+const direction = url.searchParams.get("direction") || "next"
 
+const variables = direction === "prev"
+  ? { last: 10, before: cursor }
+  : { first: 10, after: cursor }
 
   const response = await admin.graphql(`
-    query GetProducts ($cursor: String ) {
-      products(first: 10, after: $cursor ) {
+    query GetProducts ($first: Int, $last: Int, $after: String, $before: String) {
+      products(first: $first, last: $last, after: $after, before: $before) {
         edges {
           node {
             id
@@ -26,16 +30,18 @@ const cursor = url.searchParams.get("cursor") || null
         }
         pageInfo {
           hasNextPage
+          hasPreviousPage
           endCursor
           startCursor
         }
       }
     }
   `,
-    { variables: { cursor } },
+    { variables },
   );
 
   const result = await response.json();
+  console.log(result)
 
   if (!result) {
     throw new apiError(404, "Product data not found");
@@ -47,6 +53,8 @@ const cursor = url.searchParams.get("cursor") || null
   }));
 
   const pageInfo = result.data.products.pageInfo;
+  console.log(products)
+  console.log(pageInfo)
 
   return { products, pageInfo };
 }
