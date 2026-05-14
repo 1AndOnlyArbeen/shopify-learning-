@@ -1,7 +1,7 @@
 import { data } from "react-router";
-import { authenticate } from "../shopify.server";
-import { asyncHandler } from "../lib/asyncHandler";
-import { getProduct } from "../services/product.server";
+import { authenticate } from "../../shopify.server";
+import { asyncHandler } from "../../lib/asyncHandler";
+import { getProduct } from "../../services/product.server";
 import { useLoaderData } from "react-router";
 import { Page, Card, Text, Thumbnail } from "@shopify/polaris";
 
