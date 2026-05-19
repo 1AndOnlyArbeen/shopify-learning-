@@ -5,6 +5,7 @@ import { getProducts } from "../services/product.server";
 import { useLoaderData, useNavigate } from "react-router";
 import { Page } from "@shopify/polaris";
 import ProductTable from "../components/ProductTable.jsx";
+import ProductEdit from "../components/ProductEdit.jsx"
 
 
 export const loader = asyncHandler(async ({ request }) => {
@@ -27,7 +28,7 @@ export default function ProductListPage() {
     >
       
       <ProductTable products={products} pageInfo={pageInfo} />
-
+      <ProductEdit/>
     </Page>
   );
 }
